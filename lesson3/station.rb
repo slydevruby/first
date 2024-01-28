@@ -1,4 +1,4 @@
-
+# class Station
 class Station
   attr_reader :name, :trains
 
@@ -22,9 +22,6 @@ class Station
     end
   end
 
-
-
-
   def get_trains_count_by_type(type)
     total = 0
     @trains.each { |tr| total += 1 if tr.type == type }
@@ -34,7 +31,6 @@ class Station
   def show_self
     fcount = get_trains_count_by_type(:freight)
     pcount = get_trains_count_by_type(:passenger)
-
     
     if fcount + pcount != 0 
       puts "#{name}: Грузовых поездов: #{fcount}  Пассажирских поездов: #{pcount}"
@@ -44,8 +40,4 @@ class Station
     end
   end
 
-
-
 end
-
-
