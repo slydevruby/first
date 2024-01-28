@@ -33,11 +33,21 @@ class Train
   end
 
   def forward
-    @current_index += 1 if next_station
+    if next_station 
+      current_station.send_train(self)
+      @current_index += 1 
+      current_station.accept_train(self)
+    end
+
   end
 
   def backward
-    @current_index -= 1 if previous_station
+    if previous_station
+      current_station.send_train(self)
+      @current_index -= 1
+      current_station.accept_train(self)
+    end
+
   end
 
   def current_station
