@@ -7,59 +7,67 @@ require_relative '../train'
 class TrainTest < Minitest::Test
   def setup
     @amount = 12
-    @train = Train.new('123', :cargo, @amount)
-    @mos = Station.new('Moscow')
+    @cargo = Train.new('123', :cargo, @amount)
+    @moscow = Station.new('Moscow')
     @vlad = Station.new('Vlad')
-    @oms = Station.new('Omsk')
+    @omsk = Station.new('Omsk')
     @irk = Station.new('Irkutsk')
 
-    @route = Route.new(@mos, @vlad)
-    @train.assign_route(@route)
+    @route = Route.new(@moscow, @vlad)
+    @cargo.assign_route(@route)
+
+
+    @pass = Train.new('Passenger', :passenger, 10)
+    @pass.assign_route(@route)
   end
 
   def test_amount
-    assert_equal(@train.amount, 12)
+    assert_equal(@cargo.amount, 12)
   end
 
   def test_title
-    assert_equal(@train.title, '123')
+    assert_equal(@cargo.title, '123')
   end
 
   def test_route
-    assert_equal(@route.stations.first, @mos)
+    assert_equal(@route.stations.first, @moscow)
+    assert_equal(@moscow.trains, [@cargo, @pass])
     assert_equal(@route.stations.last, @vlad)
-    assert_equal(@train.current_station, @mos)
-    assert_equal(@train.next_station, @vlad)
+    assert_equal(@cargo.current_station, @moscow)
+    assert_equal(@cargo.next_station, @vlad)
   end
 
   def test_action
-    @route << @oms
-    @train.forward
-    assert_equal(@train.current_station, @oms)
-    assert_equal(@train.previous_station, @mos)
-    assert_equal(@train.next_station, @vlad)
+    @route << @omsk
+    @cargo.forward
+    assert_equal(@cargo.current_station, @omsk)
+    assert_equal(@omsk.trains, [@cargo])
+    assert_equal(@moscow.trains, [@pass])
+
+    assert_equal(@cargo.previous_station, @moscow)
+    assert_equal(@cargo.next_station, @vlad)
 
     @route << @irk
-    assert_equal(@train.current_station, @oms)
-    @train.forward
-    assert_equal(@train.current_station, @irk)
-    assert_equal(@train.previous_station, @oms)
-    @train.backward
-    assert_equal(@train.current_station, @oms)
+    assert_equal(@cargo.current_station, @omsk)
+    @cargo.forward
+    assert_equal(@cargo.current_station, @irk)
+    assert_equal(@cargo.previous_station, @omsk)
+    @cargo.backward
+    assert_equal(@cargo.current_station, @omsk)
   end
 
   def test_wagon
-    assert_equal(@train.amount, @amount)
-    @train.add_wagon
-    assert_equal(@train.amount, @amount + 1)
-    @train.accelerate
-    assert_equal(@train.speed, 1)
-    old = @train.amount
-    @train.add_wagon
-    assert_equal(@train.amount, old)
-    @train.brake
-    old = @train.amount
-    @train.add_wagon
-    assert_equal(@train.amount, old+1)
+    assert_equal(@cargo.amount, @amount)
+    @cargo.add_wagon
+    assert_equal(@cargo.amount, @amount + 1)
+    @cargo.accelerate
+    assert_equal(@cargo.speed, 1)
+    old = @cargo.amount
+    @cargo.add_wagon
+    assert_equal(@cargo.amount, old)
+    @cargo.brake
+    old = @cargo.amount
+    @cargo.add_wagon
+    assert_equal(@cargo.amount, old+1)
   end
 end
