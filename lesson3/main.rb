@@ -103,7 +103,7 @@ def trains_on_station
   show_stations
   no = input_loop('станцию', $stations.size - 1)
   puts "На станции #{$stations[no].name} поездов: #{$stations[no].trains.size}"
-  $stations[no].trains.each { |tr|  puts "Train #{tr.name}"  }
+  $stations[no].trains.each { |tr|  puts "  Поезд #{tr.name}"  }
 end
 
 def show_stations_on_route
@@ -120,16 +120,22 @@ def unchain_wagon
   show_trains
 end
 
-def forward
+def change_dir(direction)
   show_trains
   train_no = input_loop('поезд', $trains.size - 1)
-  $trains[train_no].forward
+  if $trains[train_no].route
+    $trains[train_no].method(direction).call
+  else
+    puts "Машрут не присвоен"
+  end  
+end
+
+def forward
+  change_dir(:forward)
 end
 
 def backward
-  show_trains
-  train_no = input_loop('поезд', $trains.size - 1)
-  $trains[train_no].backward
+  change_dir(:backward)
 end
 
 $menu = {Станция: [], Маршрут: [], Поезд: []}
