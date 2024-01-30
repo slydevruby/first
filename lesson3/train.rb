@@ -1,10 +1,10 @@
 # Train class
 class Train
-  attr_reader :title, :amount, :type, :route
+  attr_reader :name, :amount, :type, :route
   attr_accessor :speed
 
-  def initialize(title, type, amount)
-    @title = title
+  def initialize(name, type, amount)
+    @name = name
     @type = type
     @amount = amount
     @speed = 0
