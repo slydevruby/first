@@ -31,14 +31,20 @@ end
 def show_trains
   puts "Всего поездов: #{$trains.size}"
   $trains.each_with_index do |train, index|
-    puts "  #{index} Поезд #{train.name}, #{train.type}, вагонов: #{train.amount}"
+    puts "  #{index} #{train.type} Поезд #{train.name}, вагонов #{train.wagons.size}"
+    if train.current_station
+      puts "     находится на станции #{train.current_station}" 
+    end
   end
 end
 
 def create_route
   show_stations
   index = $stations.size
-  
+  if index == 0 
+    puts "Маршрут создать нельзя, потому что ни одной станции ещё не создано."
+    return
+  end
   first = 0
   second = 1
   loop do
@@ -77,8 +83,6 @@ def assign_route
   $trains[train_no].assign_route($routes[route_no])
 end
 
-
-
 def add_station_to_route
   show_routes
   route_number = input_loop('маршрут', $routes.size - 1)
@@ -93,9 +97,23 @@ def rem_station_from_route
 end
 
 def create_train
-  puts "Введите название"
+  puts "Введите название поезда"
   name = gets.chomp
-  train = Train.new(name, :cargo, 10)
+  type = 0
+  loop do
+    puts "Введите тип поезда, 0 - грузовой, 1 - пассажирский"
+    type = gets.chomp.to_i
+    if (0..1).include? type 
+      break
+    else
+      puts "Неправильное число. Повторим" 
+    end
+  end
+  if type == 0 
+    train = CargoTrain.new(name)
+  else 
+    train = PassengerTrain.new(name)
+  end
   $trains << train
 end
 
@@ -103,7 +121,7 @@ def trains_on_station
   show_stations
   no = input_loop('станцию', $stations.size - 1)
   puts "На станции #{$stations[no].name} поездов: #{$stations[no].trains.size}"
-  $stations[no].trains.each { |tr|  puts "  Поезд #{tr.name}"  }
+  $stations[no].trains.each { |tr|  puts "  #{tr.type} Поезд #{tr.name}"  }
 end
 
 def show_stations_on_route
@@ -114,10 +132,18 @@ end
 
 def chain_wagon
   show_trains
+  train_no = input_loop('поезд', $trains.size - 1)  
+  if $trains[train_no].is_a? CargoTrain
+    $trains[train_no].add_wagon(CargoWagon.new)
+  else
+    $trains[train_no].add_wagon(PassengerWagon.new)
+  end
 end
 
 def unchain_wagon
   show_trains
+  train_no = input_loop('поезд', $trains.size - 1)
+  $trains[train_no].wagons.delete($trains[train_no].wagons.last)
 end
 
 def change_dir(direction)
@@ -141,7 +167,7 @@ end
 $menu = {Станция: [], Маршрут: [], Поезд: []}
 $menu[:Станция] << {title: 'Создать станцию', meth: :create_station}
 $menu[:Станция] << {title: 'Показать список поездов на станции', meth: :trains_on_station}
-$menu[:Станция] << {title: 'Показать список станций', meth: :show_stations}
+$menu[:Станция] << {title: 'Показать список всех станций', meth: :show_stations}
 
 $menu[:Маршрут] << {title: 'Создать Маршрут', meth: :create_route}
 $menu[:Маршрут] << {title: 'Добавить станцию к маршруту', meth: :add_station_to_route}
@@ -149,13 +175,13 @@ $menu[:Маршрут] << {title: 'Убрать станцию с маршрут
 $menu[:Маршрут] << {title: 'Показать список станций на маршруте', meth: :show_stations_on_route}
 $menu[:Маршрут] << {title: 'Список Маршрутов', meth: :show_routes}
 
-$menu[:Поезд] << {title: 'Создать', meth: :create_train}
+$menu[:Поезд] << {title: 'Создать поезд', meth: :create_train}
 $menu[:Поезд] << {title: 'Присвоить маршрут', meth: :assign_route}
 $menu[:Поезд] << {title: 'Добавить вагоны', meth: :chain_wagon}
 $menu[:Поезд] << {title: 'Отцепить вагоны', meth: :unchain_wagon}
 $menu[:Поезд] << {title: 'Вперед по маршруту', meth: :forward}
 $menu[:Поезд] << {title: 'Назад по маршруту', meth: :backward}
-$menu[:Поезд] << {title: 'Показать список', meth: :show_trains}
+$menu[:Поезд] << {title: 'Показать список всех поездов', meth: :show_trains}
 
 
 #puts menu
