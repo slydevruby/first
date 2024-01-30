@@ -25,8 +25,8 @@ class TrainTest < Minitest::Test
     assert_equal(@cargo.amount, 12)
   end
 
-  def test_title
-    assert_equal(@cargo.title, '123')
+  def test_name
+    assert_equal(@cargo.name, '123')
   end
 
   def test_route
