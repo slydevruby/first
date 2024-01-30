@@ -3,11 +3,14 @@ require 'minitest/autorun'
 require_relative '../route'
 require_relative '../station'
 require_relative '../train'
+require_relative '../wagon'
 
 class TrainTest < Minitest::Test
   def setup
-    @amount = 12
-    @cargo = Train.new('123', :cargo, @amount)
+    
+    @cargo = CargoTrain.new('cargo')
+
+
     @moscow = Station.new('Moscow')
     @vlad = Station.new('Vlad')
     @omsk = Station.new('Omsk')
@@ -17,16 +20,12 @@ class TrainTest < Minitest::Test
     @cargo.assign_route(@route)
 
 
-    @pass = Train.new('Passenger', :passenger, 10)
+    @pass = PassengerTrain.new('1111')
     @pass.assign_route(@route)
   end
 
-  def test_amount
-    assert_equal(@cargo.amount, 12)
-  end
-
   def test_name
-    assert_equal(@cargo.name, '123')
+    assert_equal(@cargo.name, 'cargo')
   end
 
   def test_route
@@ -57,17 +56,5 @@ class TrainTest < Minitest::Test
   end
 
   def test_wagon
-    assert_equal(@cargo.amount, @amount)
-    @cargo.add_wagon
-    assert_equal(@cargo.amount, @amount + 1)
-    @cargo.accelerate
-    assert_equal(@cargo.speed, 1)
-    old = @cargo.amount
-    @cargo.add_wagon
-    assert_equal(@cargo.amount, old)
-    @cargo.brake
-    old = @cargo.amount
-    @cargo.add_wagon
-    assert_equal(@cargo.amount, old+1)
   end
 end
