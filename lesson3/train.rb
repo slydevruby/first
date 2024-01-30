@@ -1,11 +1,10 @@
 # Train class
-# private/protected методом мог быть метод speed
+
 
 load 'wagon.rb'
 
 class Train
   attr_reader :name, :wagons, :route
-  attr_accessor :speed
 
   def initialize(name)
     @name = name
@@ -62,6 +61,11 @@ class Train
   def previous_station
     @route.stations[@current_index - 1] if @route
   end
+
+  protected
+  attr_accessor :speed
+  # извне этот метод не нужен
+  
 end
 
 class PassengerTrain < Train
