@@ -1,21 +1,24 @@
 # Train class
+# private/protected методом мог быть метод speed
+
+load 'wagon.rb'
+
 class Train
-  attr_reader :name, :amount, :type, :route
+  attr_reader :name, :wagons, :route
   attr_accessor :speed
 
-  def initialize(name, type, amount)
+  def initialize(name)
     @name = name
-    @type = type
-    @amount = amount
     @speed = 0
+    @wagons = []
   end
 
-  def add_wagon
-    @amount += 1 if @speed.zero?
+  def add_wagon(wagon)
+     @wagons << wagon if @speed.zero?
   end
 
-  def remove_wagon
-    @amount -= 1 if @amount.positive? && @speed.zero?
+  def remove_wagon(wagon)
+    @wagons.delete(wagon) if @speed.zero?
   end
 
   def accelerate
@@ -38,7 +41,6 @@ class Train
       @current_index += 1 
       current_station.accept_train(self)
     end
-
   end
 
   def backward
@@ -47,21 +49,39 @@ class Train
       @current_index -= 1
       current_station.accept_train(self)
     end
-
   end
 
   def current_station
-    @route.stations[@current_index]
+    @route.stations[@current_index] if @route
   end
 
   def next_station
-    @route.stations[@current_index + 1]
+    @route.stations[@current_index + 1] if @route
   end
-
 
   def previous_station
-    @route.stations[@current_index - 1]
+    @route.stations[@current_index - 1] if @route
+  end
+end
+
+class PassengerTrain < Train
+  def add_wagon(wagon)
+     @wagons << wagon if wagon.is_a? PassengerWagon and @speed.zero?
   end
 
+  def type
+    'Пассажирский'
+  end
 
 end
+
+class CargoTrain < Train
+  def add_wagon(wagon)
+    @wagons << wagon if wagon.is_a? CargoWagon and @speed.zero?
+  end
+  def type
+    'Грузовой'
+  end
+
+end
+
