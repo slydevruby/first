@@ -38,6 +38,4 @@ class RouteTest < Minitest::Test
     @route.remove_station(@station2)
     assert_equal(@route.stations.last, @station2)
   end
-
-
 end

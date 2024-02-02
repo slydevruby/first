@@ -13,4 +13,8 @@ class StationTest < Minitest::Test
   def test_name
     assert_equal(@station.name, 'Moscow')
   end
+
+  def test_station_all
+    assert_respond_to(Station, :all)
+  end
 end

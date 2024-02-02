@@ -1,15 +1,28 @@
 # Train class
 
-
-load 'wagon.rb'
+require_relative 'producer'
+require_relative 'instance_counter'
 
 class Train
-  attr_reader :name, :wagons, :route
+  @@trains = []
 
-  def initialize(name)
+  attr_reader :name, :wagons, :route, :number
+
+  include Producer
+  include InstanceCounter
+
+  def self.find(number)
+    @@trains.find { |train| train.number == number }
+  end
+
+
+  def initialize(name, number = nil)
     @name = name
     @speed = 0
+    @number = number
     @wagons = []
+    @@trains << self
+    register_instance
   end
 
   def add_wagon(wagon)
@@ -63,9 +76,9 @@ class Train
   end
 
   protected
-  attr_accessor :speed
-  # извне этот метод не нужен
-  
+  attr_accessor :speed # извне этот метод не нужен
+
+
 end
 
 class PassengerTrain < Train
