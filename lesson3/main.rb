@@ -208,6 +208,7 @@ class Main
               PassengerTrain.new(name, gets.chomp)
             end        
       @trains << train
+      puts "Создан поезд #{name}, с номером #{train.number}"
     rescue
       puts "Неправильный формат номера, повторим"
       retry
