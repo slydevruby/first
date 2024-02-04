@@ -3,10 +3,14 @@
 require_relative 'producer'
 require_relative 'instance_counter'
 
+
+
 class Train
   @@trains = []
 
   attr_reader :name, :wagons, :route, :number
+
+  TRAIN_FORMAT = /^...-?..$/i
 
   include Producer
   include InstanceCounter
@@ -15,19 +19,26 @@ class Train
     @@trains.find { |train| train.number == number }
   end
 
-
   def initialize(name, number = nil)
     @name = name
-    @speed = 0
     @number = number
-    @wagons = []
-    @@trains << self
-    register_instance
+    if validate!
+      @speed = 0
+      @wagons = []
+      @@trains << self
+      register_instance
+    end
   end
 
   def add_wagon(wagon)
      @wagons << wagon if @speed.zero?
   end
+
+  def valid?  
+    validate! 
+  rescue
+    false
+  end    
 
   def remove_wagon(wagon)
     @wagons.delete(wagon) if @speed.zero?
@@ -79,6 +90,13 @@ class Train
   attr_accessor :speed # извне этот метод не нужен
 
 
+  def validate!
+    raise "Неправильное имя" if name.nil?
+    raise "Номер должен быть строкой" if !number.nil? && !(number.is_a? String)  
+    raise "Неправильный формат номера" if !number.nil? && number !~ TRAIN_FORMAT
+    true
+  end
+
 end
 
 class PassengerTrain < Train
@@ -101,4 +119,5 @@ class CargoTrain < Train
   end
 
 end
+
 

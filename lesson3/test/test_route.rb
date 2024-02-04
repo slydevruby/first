@@ -30,12 +30,17 @@ class RouteTest < Minitest::Test
   end
 
   def test_rem_mos
-    @route.remove_station(@station1)
-    assert_equal(@route.stations.first, @station1)
+    error = assert_raises(RuntimeError) do
+      @route.remove_station(@station1)
+    end
+    assert_equal 'Нельзя удалить начальную станцию', error.message
   end
 
   def test_rem_vlad
-    @route.remove_station(@station2)
-    assert_equal(@route.stations.last, @station2)
+    error = assert_raises(RuntimeError) do
+      @route.remove_station(@station2)      
+    end
+    assert_equal 'Нельзя удалить конечную станцию', error.message
+
   end
 end

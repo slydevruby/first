@@ -7,7 +7,7 @@ require_relative '../wagon'
 
 class TrainTest < Minitest::Test
   def setup
-    @cargo = CargoTrain.new('cargo')
+    @cargo = CargoTrain.new('cargo', 'aaa-bb')
 
     @moscow = Station.new('Moscow')
     @vlad = Station.new('Vlad')
@@ -17,7 +17,7 @@ class TrainTest < Minitest::Test
     @route = Route.new(@moscow, @vlad)
     @cargo.assign_route(@route)
 
-    @pass = PassengerTrain.new('1111')
+    @pass = PassengerTrain.new('1111', '111-22')
     @pass.assign_route(@route)
   end
 
@@ -62,7 +62,7 @@ class TrainTest < Minitest::Test
 
   def test_train_find
     assert_respond_to Train, :find
-    t1 = Train.new('999', 999)
-    assert_equal t1, Train.find(999)
+    t1 = Train.new('999', '12345')
+    assert_equal t1, Train.find('12345')
   end
 end

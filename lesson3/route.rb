@@ -7,10 +7,19 @@ class Route
 
   def initialize(first_station, last_station)
     @stations = [first_station, last_station]
-    register_instance
+    if validate!
+      register_instance
+    end
   end
 
+  def valid?  
+    validate! 
+  rescue
+    false
+  end  
+
   def add_station(station)
+    raise "Нельзя добавить пустую станцию" if station.nil?
     @stations.insert(@stations.size - 1, station)
   end
 
@@ -19,6 +28,19 @@ class Route
   end
 
   def remove_station(station)
-    @stations.delete(station) if (station != @stations.first) && (station != @stations.last)
+    raise "Нельзя удалить пустую станцию" if station.nil?
+    raise "Нельзя удалить начальную станцию" if station == @stations.first
+    raise "Нельзя удалить конечную станцию" if station == @stations.last
+    @stations.delete(station)
   end
+
+  protected
+
+  def validate!
+    raise "Нельзя добавить пустую начальную станцию" if @stations.first.nil?
+    raise "Нельзя добавить пустую конечную станцию" if @stations.last.nil?
+    raise "Начальная и конечная станции должны быть разными" if @stations.first  == @stations.last
+    true
+  end    
 end
+

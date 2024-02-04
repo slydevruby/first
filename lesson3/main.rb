@@ -199,12 +199,19 @@ class Main
 
       puts 'Неправильное число. Повторим'
     end
-    train = if type.zero?
-              CargoTrain.new(name)
+  
+    begin
+      puts 'Введите номер поезда, формат XXX-YY, X - цифра или буква, дефис - необязателен'            
+      train = if type.zero?
+              CargoTrain.new(name, gets.chomp)
             else
-              PassengerTrain.new(name)
-            end
-    @trains << train
+              PassengerTrain.new(name, gets.chomp)
+            end        
+      @trains << train
+    rescue
+      puts "Неправильный формат номера, повторим"
+      retry
+    end    
   end
 
   def trains_on_station
