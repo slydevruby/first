@@ -1,1 +1,1 @@
-puts "rake!"
+puts 'rake!'

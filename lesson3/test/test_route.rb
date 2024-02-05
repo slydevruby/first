@@ -38,9 +38,8 @@ class RouteTest < Minitest::Test
 
   def test_rem_vlad
     error = assert_raises(RuntimeError) do
-      @route.remove_station(@station2)      
+      @route.remove_station(@station2)
     end
     assert_equal 'Нельзя удалить конечную станцию', error.message
-
   end
 end

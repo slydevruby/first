@@ -32,11 +32,11 @@ class TestWagon < Minitest::Test
 
   def test_pass_excep
     pass = PassengerWagon.new(10)
-    10.times { pass.take_place}
+    10.times { pass.take_place }
     error = assert_raises(RuntimeError) do
       pass.take_place
     end
-    assert_equal 'Все места заняты', error.message    
+    assert_equal 'Все места заняты', error.message
   end
 
   def test_cargo
@@ -44,7 +44,7 @@ class TestWagon < Minitest::Test
     assert_equal(0, cargo.get_taken_volume)
     cargo.take_volume(2)
     assert_equal(2, cargo.get_taken_volume)
-    assert_equal(8, cargo.get_free_volume)    
+    assert_equal(8, cargo.get_free_volume)
   end
 
   def test_cargo_excep
@@ -52,7 +52,6 @@ class TestWagon < Minitest::Test
     error = assert_raises(RuntimeError) do
       cargo.take_volume(11)
     end
-    assert_equal 'Весь объём занят', error.message    
+    assert_equal 'Весь объём занят', error.message
   end
-
 end

@@ -5,9 +5,7 @@ load 'mtrain.rb'
 def show(route)
   print '>>' * 7
   puts " Маршрут #{route.first.name} -- #{route.last.name} "
-  route.stations.each do |st|
-    st.show_self
-  end
+  route.stations.each(&:show_self)
   puts '<<' * 7
 end
 

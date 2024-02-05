@@ -9,19 +9,19 @@ class Station
     @@stations
   end
 
-  def valid?  
-    validate! 
-  rescue
+  def valid?
+    validate!
+  rescue StandardError
     false
   end
 
   def initialize(name)
     @name = name
-    if validate! 
-      @trains = []
-      @@stations << self
-      register_instance
-    end
+    return unless validate!
+
+    @trains = []
+    @@stations << self
+    register_instance
   end
 
   def accept_train(train)
@@ -32,10 +32,9 @@ class Station
     @trains.delete(train)
   end
 
-  def each_train
-    trains.each { |train| yield train }
+  def each_train(&block)
+    trains.each(&block)
   end
-
 
   def get_trains_by_type(type)
     @trains.select { |train| train.type == type }.size
@@ -43,12 +42,11 @@ class Station
 
   protected
 
-  def validate! 
-    raise "Неправильное имя" if name.nil?
-    raise "Пустая строка" if name.size == 0
-    raise "Название должно быть строкой" unless name.is_a? String
+  def validate!
+    raise 'Неправильное имя' if name.nil?
+    raise 'Пустая строка' if name.empty?
+    raise 'Название должно быть строкой' unless name.is_a? String
+
     true
   end
-
 end
-

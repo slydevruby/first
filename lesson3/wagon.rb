@@ -6,7 +6,6 @@ class Wagon
 end
 
 class CargoWagon < Wagon
-
   attr_reader :max_volume, :taken_volume
 
   def initialize(max_volume)
@@ -15,7 +14,8 @@ class CargoWagon < Wagon
   end
 
   def take_volume(qty)
-    raise "Весь объём занят" if @taken_volume + qty > @max_volume
+    raise 'Весь объём занят' if @taken_volume + qty > @max_volume
+
     @taken_volume += qty
   end
 
@@ -29,7 +29,6 @@ class CargoWagon < Wagon
 end
 
 class PassengerWagon < Wagon
-
   attr_reader :max_places, :taken_places
 
   def initialize(max_places)
@@ -38,7 +37,8 @@ class PassengerWagon < Wagon
   end
 
   def take_place
-    raise "Все места заняты" if @taken_places + 1 > @max_places
+    raise 'Все места заняты' if @taken_places + 1 > @max_places
+
     @taken_places += 1
   end
 
@@ -49,5 +49,4 @@ class PassengerWagon < Wagon
   def get_free_places
     @max_places - @taken_places
   end
-
 end
