@@ -10,7 +10,8 @@ class Train
 
   attr_reader :name, :wagons, :route, :number
 
-  TRAIN_FORMAT = /^...-?..$/i
+  # /^...-?..$/i
+  TRAIN_FORMAT =/^[a-z0-9]{3}-?[a-z0-9]{2}$/i
 
   include Producer
   include InstanceCounter
@@ -28,6 +29,10 @@ class Train
       @@trains << self
       register_instance
     end
+  end
+
+  def each_wagon
+    wagons.each { |wagon| yield wagon }
   end
 
   def add_wagon(wagon)
