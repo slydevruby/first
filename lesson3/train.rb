@@ -3,9 +3,8 @@
 require_relative 'producer'
 require_relative 'instance_counter'
 
+# Поезд
 class Train
-  @@trains = []
-
   attr_reader :name, :wagons, :route, :number
 
   # /^...-?..$/i
@@ -14,8 +13,16 @@ class Train
   include Producer
   include InstanceCounter
 
-  def self.find(number)
-    @@trains.find { |train| train.number == number }
+  class << self
+    attr_writer :trains
+
+    def find(number)
+      @trains.find { |train| train.number == number }
+    end
+
+    def trains
+      @trains ||= []
+    end
   end
 
   def initialize(name, number = nil)
@@ -25,7 +32,7 @@ class Train
 
     @speed = 0
     @wagons = []
-    @@trains << self
+    self.class.trains << self
     register_instance
   end
 
@@ -102,6 +109,7 @@ class Train
   end
 end
 
+# Passenger train
 class PassengerTrain < Train
   def add_wagon(wagon)
     @wagons << wagon if wagon.is_a?(PassengerWagon) && @speed.zero?
@@ -112,6 +120,7 @@ class PassengerTrain < Train
   end
 end
 
+# Passenger train
 class CargoTrain < Train
   def add_wagon(wagon)
     @wagons << wagon if wagon.is_a?(CargoWagon) && @speed.zero?

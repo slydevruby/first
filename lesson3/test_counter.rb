@@ -5,6 +5,7 @@ require_relative 'station'
 require_relative 'train'
 require_relative 'wagon'
 
+# Проверяем счетчик количества экземпляров
 class CounterTest < Minitest::Test
   def test_trains
     assert_equal 0, Train.instances

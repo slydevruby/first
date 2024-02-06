@@ -3,26 +3,42 @@ load 'route.rb'
 load 'train.rb'
 load 'wagon.rb'
 
+def input_loop(title, top)
+  number = 0
+  loop do
+    puts "Выберите #{title} 0..#{top} по номеру"
+    number = gets.chomp.to_i
+    break if (0..top).include? number
+
+    puts 'Такого номера нет. Повторим'
+  end
+  number
+end
+
+# Реализация текстового интерфейса для управления железной дорогой
 class Main
   MENU = [
     { id: 1, title: 'Создать станцию', action: :create_station },
-    { id: 2, title: 'Показать список поездов на станции', action: :trains_on_station },
-    { id: 3, title: 'Показать список станций', action: :show_stations },
+    { id: 2, title: '  Показать список поездов на станции', action: :trains_on_station },
+    { id: 3, title: '  Показать список станций', action: :show_stations },
 
     { id: 4, title: 'Создать маршрут', action: :create_route },
-    { id: 5, title: 'Добавить станцию к маршруту', action: :add_station_to_route },
-    { id: 6, title: 'Показать список маршрутов', action: :show_routes },
+    { id: 5, title: '  Добавить станцию к маршруту', action: :add_station_to_route },
+    { id: 6, title: '  Удалить станцию из маршрута', action: :rem_station_from_route },
+    { id: 7, title: '  Показать список маршрутов', action: :show_routes },
 
-    { id: 7, title: 'Создать поезд', action: :create_train },
-    { id: 8, title: 'Показать список поездов', action: :show_trains },
-    { id: 9, title: 'Назначить маршрут', action: :assign_route },
-    { id: 10, title: 'Прицепить вагон', action: :chain_wagon },
-    { id: 11, title: 'Отцепить вагон', action: :unchain_wagon },
-    { id: 12, title: 'Вперед по маршруту', action: :forward },
-    { id: 13, title: 'Назад по маршруту', action: :backward },
-    { id: 14, title: 'Занять место или объём в вагоне', action: :occupy_wagon }
+    { id: 8, title: 'Создать поезд', action: :create_train },
+    { id: 9, title: '  Показать список поездов', action: :show_trains },
+    { id: 10, title: '  Назначить маршрут', action: :assign_route },
+    { id: 11, title: '  Прицепить вагон', action: :chain_wagon },
+    { id: 12, title: '  Отцепить вагон', action: :unchain_wagon },
+    { id: 13, title: '  Вперед по маршруту', action: :forward },
+    { id: 14, title: '  Назад по маршруту', action: :backward },
+    { id: 15, title: '  Занять место или объём в вагоне', action: :takeup_space_in_wagon }
 
   ].freeze
+
+  HASH_TRAIN = { 0 => CargoTrain, 1 => PassengerTrain }.freeze
 
   def initialize
     @stations = []
@@ -33,7 +49,7 @@ class Main
   def start
     loop do
       show_menu
-      choice = get_choice
+      choice = gets.chomp.to_i
       break if choice.zero?
 
       process(choice)
@@ -49,14 +65,10 @@ class Main
     puts 'Введите номер команды, 0 для выхода'
   end
 
-  def get_choice
-    gets.chomp.to_i
-  end
-
   def process(choice)
     puts "Вы выбрали #{choice}"
-    item = MENU.select { |item| item[:id] == choice }
-    method(item[0][:action]).call
+    sel = MENU.select { |item| item[:id] == choice }
+    method(sel[0][:action]).call
   end
 
   def create_station
@@ -84,19 +96,17 @@ class Main
   def show_trains
     puts "Всего поездов: #{@trains.size}"
     @trains.each_with_index do |train, index|
-      puts "  #{index} #{train.type} Поезд <#{train.name}>, вагонов #{train.wagons.size}"
+      puts "  #{index} #{train.type} Поезд №#{train.number} <#{train.name}>, вагонов #{train.wagons.size}"
       puts "     находится на станции <#{train.current_station.name}>" if train.current_station
-      train.each_wagon do |wag|
-        print '     Вагон '
-        if wag.is_a? CargoWagon
-          puts "грузовой, общий объём #{wag.max_volume}, занято #{wag.taken_volume}"\
-          " свободно #{wag.max_volume - wag.taken_volume}"
-        else
-          puts "пассажирский, общее количество мест #{wag.max_places}, занято #{wag.taken_places}"\
-          " свободно #{wag.max_places - wag.taken_places}"
-        end
-      end
+      train.each_wagon(&:show)
     end
+  end
+
+  def input_stations_for_route
+    puts 'Выберите первую и последнюю станции по номеру, вводя их через пробел'
+    first, second = gets.chomp.split(' ')
+    first, second = [first, second].map(&:to_i)
+    [first, second]
   end
 
   def create_route
@@ -106,103 +116,12 @@ class Main
       puts 'Маршрут создать нельзя, потому что станций нет или только одна.'
       return
     end
-    first = 0
-    second = 1
-    loop do
-      puts "Выберите первую и последнюю станции 0..#{index - 1} по номеру, вводя их через пробел"
-      first, second = gets.chomp.split(' ')
-      first, second = [first, second].map(&:to_i)
-      if first == second
-        puts 'Станции должны быть разными. Повторим'
-      elsif !(0..index - 1).include? first
-        puts 'Такого номера станции нет. Повторим'
-      elsif !(0..index - 1).include? second
-        puts 'Такого номера станции нет. Повторим'
-      else
-        break
-      end
-    end
-    @routes << Route.new(@stations[first], @stations[second])
+    indexes = input_stations_for_route
+
+    @routes << Route.new(@stations[indexes.first], @stations[indexes.last])
   end
 
-  def input_loop(title, top)
-    number = 0
-    loop do
-      puts "Выберите #{title} 0..#{top} по номеру"
-      number = gets.chomp.to_i
-      break if (0..top).include? number
-
-      puts 'Такого номера нет. Повторим'
-    end
-    number
-  end
-
-  def assign_route
-    show_routes
-    if @routes.size.positive?
-      route_no = input_loop('маршрут', @routes.size - 1)
-      show_trains
-      if @trains.size.positive?
-        train_no = input_loop('поезд', @trains.size - 1)
-        @trains[train_no].assign_route(@routes[route_no])
-      else
-        puts 'Нет поездов'
-      end
-    else
-      puts 'Нет маршрутов'
-    end
-  end
-
-  def add_station_to_route
-    show_routes
-    if @routes.size.positive?
-      route_number = input_loop('маршрут', @routes.size - 1)
-      show_stations
-      if @stations.size.positive?
-        station_number = input_loop('станцию', @stations.size - 1)
-        puts 'Добавляем станцию к маршруту'
-        @routes[route_number] << @stations[station_number]
-      else
-        puts 'Нет станций'
-      end
-    else
-      puts 'Нет маршрутов'
-    end
-  end
-
-  def rem_station_from_route
-    show_routes
-    if @routes.size.positive?
-      route_number = input_loop('маршрут', @routes.size - 1)
-
-      route = @routes[route_number]
-      list = []
-      if route.stations.size.positive?
-        route.stations.each_with_index do |st, index|
-          puts "#{index} #{st.name}"
-          list << index
-        end
-        no = 0
-        loop do
-          puts 'Введите номер станции, которую нужно удалить (первую и последнюю удалить нельзя)'
-          no = gets.chomp.to_i
-          break if list.include? no
-
-          puts 'Такого номера нет. Повторим'
-        end
-        # route.stations.delete_at(no)
-        route.remove_station(route.stations[no])
-      else
-        puts 'Нет станций'
-      end
-    else
-      puts 'Нет маршрутов'
-    end
-  end
-
-  def create_train
-    puts 'Введите название поезда'
-    name = gets.chomp
+  def input_train_type
     type = 0
     loop do
       puts 'Введите тип поезда, 0 - грузовой, 1 - пассажирский'
@@ -211,142 +130,131 @@ class Main
 
       puts 'Неправильное число. Повторим'
     end
+    type
+  end
 
-    begin
-      puts 'Введите номер поезда, формат XXX-YY, X - цифра или буква, дефис - необязателен'
-      train = if type.zero?
-                CargoTrain.new(name, gets.chomp)
-              else
-                PassengerTrain.new(name, gets.chomp)
-              end
-      @trains << train
-      puts "Создан поезд #{name}, с номером #{train.number}"
-    rescue StandardError
-      puts 'Неправильный формат номера, повторим'
-      retry
+  def create_train
+    puts 'Введите через пробел название поезда и номер поезда, формат XXX-YY, X - цифра или буква, дефис - необязателен'
+    name, num = gets.chomp.split
+    type = input_train_type
+    train = HASH_TRAIN[type].new(name, num)
+    puts "Создан поезд #{name}, с номером #{num}"
+    @trains << train
+  rescue StandardError
+    puts 'Неправильный формат номера, повторим'
+    retry
+  end
+
+  def select_obj(show_proc, object, title, plural_title)
+    method(show_proc).call
+    if object.size.positive?
+      no = input_loop(title, object.size - 1)
+      yield object[no]
+    else
+      puts "Нет #{plural_title}"
+    end
+  end
+
+  def assign_route
+    select_obj(:show_routes, @routes, 'маршрут', 'маршрутов') do |route|
+      select_obj(:show_trains, @trains, 'поезд', 'поездов') do |train|
+        train.assign_route(route)
+      end
+    end
+  end
+
+  def add_station_to_route
+    select_obj(:show_routes, @routes, 'маршрут', 'маршрутов') do |route|
+      select_obj(:show_stations, @stations, 'станция', 'станций') do |station|
+        puts 'Добавляем станцию к маршруту'
+        route << station
+      end
+    end
+  end
+
+  def rem_station_from_route
+    select_obj(:show_routes, @routes, 'маршрут', 'маршрутов') do |route|
+      if route.stations.size.positive?
+        route.stations.each_with_index { |st, index| puts "#{index} #{st.name}" }
+        puts 'Введите номер станции, которую нужно удалить'
+        route.remove_station(route.stations[gets.chomp.to_i])
+      end
     end
   end
 
   def trains_on_station
-    show_stations
-    if @stations.size.positive?
-      no = input_loop('станцию', @stations.size - 1)
-      puts "На станции #{@stations[no].name} поездов: #{@stations[no].trains.size}"
-      @stations[no].each_train { |tr| puts " Поезд №#{tr.number} тип #{tr.type}, вагонов: #{tr.wagons.size}" }
-    else
-      puts 'Нет станций'
+    select_obj(:show_stations, @stations, 'станция', 'станций') do |station|
+      puts "На станции #{station.name} поездов: #{station.trains.size}"
+      station.each_train { |tr| puts " Поезд №#{tr.number} тип #{tr.type}, вагонов: #{tr.wagons.size}" }
+    end
+  end
+
+  def change_dir(direction)
+    select_obj(:show_trains, @trains, 'поезд', 'поездов') do |train|
+      if train.route
+        train.method(direction).call
+      else
+        puts 'Машрут не присвоен'
+      end
     end
   end
 
   def chain_wagon
-    show_trains
-    if @trains.size.positive?
-      train_no = input_loop('поезд', @trains.size - 1)
-      if @trains[train_no].is_a? CargoTrain
+    select_obj(:show_trains, @trains, 'поезд', 'поездов') do |train|
+      if train.is_a? CargoTrain
         puts 'Введите общий объём вагона'
-        max_vol = gets.chomp.to_i
-        @trains[train_no].add_wagon(CargoWagon.new(max_vol))
+        train.add_wagon(CargoWagon.new(gets.chomp.to_i))
       else
-        puts 'Введите количество мест'
-        max_places = gets.chomp.to_i
-        @trains[train_no].add_wagon(PassengerWagon.new(max_places))
+        puts 'Введите общее количество мест'
+        train.add_wagon(PassengerWagon.new(gets.chomp.to_i))
       end
-    else
-      puts 'Нет поездов'
     end
   end
 
   def unchain_wagon
-    show_trains
-    if @trains.size.positive?
-      train_no = input_loop('поезд', @trains.size - 1)
-      train = @trains[train_no]
+    select_obj(:show_trains, @trains, 'поезд', 'поездов') do |train|
       if train.wagons.size.positive?
-        index = 0
-        train.each_wagon do |_wagon|
-          puts "  Вагон #{index}"
-          index += 1
-        end
+        show_wagons(train)
         wagon_no = input_loop('отцепляемый вагон', train.wagons.size - 1)
         train.wagons.delete_at(wagon_no)
       else
         puts 'Нет вагонов'
       end
-    else
-      puts 'Нет поездов'
     end
   end
 
-  def change_dir(direction)
-    show_trains
-    if @trains.size.positive?
-      train_no = input_loop('поезд', @trains.size - 1)
-      if @trains[train_no].route
-        @trains[train_no].method(direction).call
-      else
-        puts 'Машрут не присвоен'
-      end
+  # занять место в вагоне №wagon_no поезда train
+  def input_space(train, wagon_no)
+    if train.is_a? CargoTrain
+      puts 'Cколько объёма занять в этом вагоне?'
+      train.wagons[wagon_no].occupy(gets.chomp.to_i)
     else
-      puts 'Нет поездов'
+      train.wagons[wagon_no].occupy(1)
+      puts 'Место занято'
     end
+  rescue StandardError
+    puts 'Слишком большое число, столько места нет, повторим'
+    retry
   end
 
-  def take_volume(train)
-    index = 0
-    train.each_wagon do |wagon|
-      puts "  Вагон #{index}, свободно: #{wagon.get_free_volume}"
-      index += 1
-    end
+  # выбрать вагон в поезде train
+  def takeup_space(train)
+    train.each_wagon(&:show)
     wagon_no = input_loop('вагон', train.wagons.size - 1)
-    if train.wagons[wagon_no].get_free_volume.positive?
-      begin
-        puts 'Cколько объёма занять в этом вагоне?'
-        value = gets.chomp.to_i
-        train.wagons[wagon_no].take_volume(value)
-      rescue StandardError
-        puts 'Слишком большое число, столько места нет, повторим'
-        retry
-      end
-    else
-      puts 'В этом вагоне всё занятo. Попробуйте другой вагон'
-    end
-  end
-
-  def take_place(train)
-    index = 0
-    train.each_wagon do |wagon|
-      puts "  Вагон #{index}, свободно: #{wagon.get_free_places}"
-      index += 1
-    end
-    wagon_no = input_loop('вагон', train.wagons.size - 1)
-    if train.wagons[wagon_no].get_free_places.positive?
-      begin
-        train.wagons[wagon_no].take_place
-        puts 'Место занято'
-      rescue StandardError
-        puts 'Все места заняты, попробуйте другой вагон'
-      end
+    if train.wagons[wagon_no].free.positive?
+      input_space(train, wagon_no)
     else
       puts 'В этом вагоне всё занятo, попробуйте другой вагон'
     end
   end
 
-  def occupy_wagon
-    show_trains
-    if @trains.size.positive?
-      train_no = input_loop('поезд', @trains.size - 1)
-      train = @trains[train_no]
+  def takeup_space_in_wagon
+    select_obj(:show_trains, @trains, 'поезд', 'поездов') do |train|
       if train.wagons.size.positive?
-        if train.is_a? CargoTrain
-          take_volume(train)
-        elsif train.is_a? PassengerTrain
-          take_place(train)
-        end
+        takeup_space(train)
       else
         puts 'Нет вагонов'
       end
-    else
-      puts 'Нет поездов'
     end
   end
 

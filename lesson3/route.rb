@@ -1,5 +1,6 @@
 require_relative 'instance_counter'
 
+# Машрут, содержит список станций
 class Route
   attr_reader :stations
 

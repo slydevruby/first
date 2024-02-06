@@ -1,52 +1,50 @@
-# class Wagon
 require_relative 'producer'
 
+# class Wagon implements 'wagon' behaviour
 class Wagon
+  attr_reader :max, :occupied, :free
+
   include Producer
+
+  def initialize(max, raise_text = 'Всё занято')
+    @max = max
+    @occupied = 0
+    @free = max
+    @raise_text = raise_text
+  end
+
+  def occupy(qty)
+    raise @raise_text if @occupied + qty > @max
+
+    @occupied += qty
+    @free = @max - @occupied
+  end
+
+  def show
+    raise 'Abstract method Wagon.show'
+  end
 end
 
+# This is cargo wagon
 class CargoWagon < Wagon
-  attr_reader :max_volume, :taken_volume
-
-  def initialize(max_volume)
-    @max_volume = max_volume
-    @taken_volume = 0
+  def initalize(max)
+    super(max, 'Весь объём занят')
   end
 
-  def take_volume(qty)
-    raise 'Весь объём занят' if @taken_volume + qty > @max_volume
-
-    @taken_volume += qty
-  end
-
-  def get_taken_volume
-    @taken_volume
-  end
-
-  def get_free_volume
-    @max_volume - @taken_volume
+  def show
+    puts "  грузовой вагон, общий объём #{@max}, занято #{@occupied}"\
+      " свободно #{free}"
   end
 end
 
+# This is passenger wagon
 class PassengerWagon < Wagon
-  attr_reader :max_places, :taken_places
-
-  def initialize(max_places)
-    @max_places = max_places
-    @taken_places = 0
+  def initalize(max)
+    super(max, 'Все места заняты')
   end
 
-  def take_place
-    raise 'Все места заняты' if @taken_places + 1 > @max_places
-
-    @taken_places += 1
-  end
-
-  def get_taken_places
-    @taken_places
-  end
-
-  def get_free_places
-    @max_places - @taken_places
+  def show
+    puts "  пассажирский вагон, общее количество мест #{@max}, занято #{@occupied}"\
+          " свободно #{free}"
   end
 end

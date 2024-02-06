@@ -1,15 +1,17 @@
+# Подсчет количества ссылок
 module InstanceCounter
   def self.included(base)
     base.extend ClassMethods
   end
 
+  # добавляем атрибут instances в класс
   module ClassMethods
     def instances
       @instances ||= 0
     end
 
-    def instances=(n)
-      @instances_count = n
+    def instances=(count)
+      @instances_count = count
     end
   end
 

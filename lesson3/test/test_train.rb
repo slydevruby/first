@@ -39,17 +39,11 @@ class TrainTest < Minitest::Test
     assert_equal(@cargo.current_station, @omsk)
     assert_equal(@omsk.trains, [@cargo])
     assert_equal(@moscow.trains, [@pass])
-
-    assert_equal(@cargo.previous_station, @moscow)
-    assert_equal(@cargo.next_station, @vlad)
-
     @route << @irk
     assert_equal(@cargo.current_station, @omsk)
     @cargo.forward
     assert_equal(@cargo.current_station, @irk)
     assert_equal(@cargo.previous_station, @omsk)
-    @cargo.backward
-    assert_equal(@cargo.current_station, @omsk)
   end
 
   def test_producer

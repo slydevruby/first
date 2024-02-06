@@ -1,12 +1,21 @@
 require_relative 'instance_counter'
+
+# Станция, содержит поезда
 class Station
-  @@stations = []
   attr_reader :name, :trains
 
   include InstanceCounter
 
-  def self.all
-    @@stations
+  class << self
+    attr_writer :stations
+
+    def all
+      @stations
+    end
+
+    def stations
+      @stations ||= []
+    end
   end
 
   def valid?
@@ -20,7 +29,7 @@ class Station
     return unless validate!
 
     @trains = []
-    @@stations << self
+    self.class.stations << self
     register_instance
   end
 
