@@ -1,10 +1,15 @@
 require_relative 'instance_counter'
+require_relative 'validation'
 
 # Станция, содержит поезда
 class Station
-  attr_reader :name, :trains
+  attr_reader :trains
+  attr_accessor :name
 
   include InstanceCounter
+  include Validation
+
+  validate :name, type: String
 
   class << self
     attr_writer :stations
@@ -18,16 +23,9 @@ class Station
     end
   end
 
-  def valid?
-    validate!
-  rescue StandardError
-    false
-  end
-
   def initialize(name)
     @name = name
     return unless validate!
-
     @trains = []
     self.class.stations << self
     register_instance
@@ -47,15 +45,5 @@ class Station
 
   def get_trains_by_type(type)
     @trains.select { |train| train.type == type }.size
-  end
-
-  protected
-
-  def validate!
-    raise 'Неправильное имя' if name.nil?
-    raise 'Пустая строка' if name.empty?
-    raise 'Название должно быть строкой' unless name.is_a? String
-
-    true
   end
 end

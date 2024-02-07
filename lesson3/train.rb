@@ -1,17 +1,19 @@
-# Train class
-
 require_relative 'producer'
 require_relative 'instance_counter'
+require_relative 'validation'
 
 # Поезд
 class Train
   attr_reader :name, :wagons, :route, :number
 
-  # /^...-?..$/i
   TRAIN_FORMAT = /^[a-z0-9]{3}-?[a-z0-9]{2}$/i.freeze
 
   include Producer
   include InstanceCounter
+  include Validation
+
+  validate :name, presence: true, type: String
+  validate :number, format: TRAIN_FORMAT
 
   class << self
     attr_writer :trains
@@ -42,12 +44,6 @@ class Train
 
   def add_wagon(wagon)
     @wagons << wagon if @speed.zero?
-  end
-
-  def valid?
-    validate!
-  rescue StandardError
-    false
   end
 
   def remove_wagon(wagon)
@@ -99,18 +95,13 @@ class Train
   protected
 
   attr_accessor :speed # извне этот метод не нужен
-
-  def validate!
-    raise 'Неправильное имя' if name.nil?
-    raise 'Номер должен быть строкой' if !number.nil? && !(number.is_a? String)
-    raise 'Неправильный формат номера' if !number.nil? && number !~ TRAIN_FORMAT
-
-    true
-  end
 end
 
 # Passenger train
 class PassengerTrain < Train
+  validate :name, presence: true, type: String
+  validate :number, format: TRAIN_FORMAT
+
   def add_wagon(wagon)
     @wagons << wagon if wagon.is_a?(PassengerWagon) && @speed.zero?
   end
@@ -122,6 +113,9 @@ end
 
 # Passenger train
 class CargoTrain < Train
+  validate :name, presence: true, type: String
+  validate :number, format: TRAIN_FORMAT
+
   def add_wagon(wagon)
     @wagons << wagon if wagon.is_a?(CargoWagon) && @speed.zero?
   end

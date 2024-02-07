@@ -72,10 +72,13 @@ class Main
   end
 
   def create_station
-    print 'Введите имя станции: '
-    name = gets.chomp
-    station = Station.new(name)
-    @stations << station
+      print 'Введите имя станции 5 символов: '
+      name = gets.chomp
+      station = Station.new(name)
+      @stations << station
+    rescue => e
+      puts "Неправильное имя, повторим #{e}"
+      retry
   end
 
   def show_stations

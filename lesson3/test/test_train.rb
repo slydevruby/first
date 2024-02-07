@@ -47,7 +47,8 @@ class TrainTest < Minitest::Test
   end
 
   def test_producer
-    assert_respond_to @pass, :producer
+    pass = PassengerTrain.new('1111', '111-22')
+    assert_respond_to pass, :producer
   end
 
   def test_number

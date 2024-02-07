@@ -3,7 +3,7 @@ require_relative '../station'
 
 class StationTest < Minitest::Test
   def setup
-    @station = Station.new('Moscow')
+    @station = Station.new('Mosco')
   end
 
   def test_trains_size
@@ -11,7 +11,11 @@ class StationTest < Minitest::Test
   end
 
   def test_name
-    assert_equal(@station.name, 'Moscow')
+    assert_equal(@station.name, 'Mosco')
+    @station.name = 123
+    assert_equal false, @station.valid?
+    @station.name = 'Omsk'
+    assert_equal true, @station.valid?
   end
 
   def test_station_all
